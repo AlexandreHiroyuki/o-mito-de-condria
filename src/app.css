@@ -2,4 +2,8 @@
 
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton/optional/presets';
-@import '@skeletonlabs/skeleton/themes/reign';
+
+:root {
+	touch-action: pan-x pan-y;
+	height: 100%;
+}

@@ -1,9 +1,28 @@
-<main class="flex h-screen w-full items-center justify-center bg-black">
-	<div class="flex aspect-[9/19.5] w-full max-w-[414px] items-center justify-center bg-white">
-		<button
-			class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-500 p-4 text-white transition-colors hover:bg-blue-600"
-		>
-			Click me
-		</button>
+<script lang="ts">
+	import { Navigation } from '@skeletonlabs/skeleton-svelte';
+
+	import CircleFadingArrowUpIcon from '@lucide/svelte/icons/circle-fading-arrow-up';
+	import NotebookPenIcon from '@lucide/svelte/icons/notebook-pen';
+	import SaveIcon from '@lucide/svelte/icons/save';
+
+	let value = $state('game');
+</script>
+
+<div class="flex h-full w-full flex-1 items-center justify-center">
+	<button class="relative flex items-center justify-center transition-transform active:scale-95">
+		<img src="/cell_shell.png" alt="Cell Shell" class="max-h-[90vh] w-[90%]" />
+		<img src="/nucleus.png" alt="Nucleus" class="absolute w-[50%] object-contain" />
+	</button>
+</div>
+
+<div
+	class="fixed bottom-0 w-full border-5 border-white bg-white shadow-[0_-2px_4px_4px] shadow-black/60"
+>
+	<div class="bg-tertiary-500 rounded-xl p-1 font-semibold text-white">
+		<Navigation.Bar {value} onValueChange={(newValue: string) => (value = newValue)}>
+			<Navigation.Tile id="game" label="Células"><CircleFadingArrowUpIcon /></Navigation.Tile>
+			<Navigation.Tile id="discoveries" label="Descobertas"><NotebookPenIcon /></Navigation.Tile>
+			<Navigation.Tile id="save" label="Salvar"><SaveIcon /></Navigation.Tile>
+		</Navigation.Bar>
 	</div>
-</main>
+</div>
