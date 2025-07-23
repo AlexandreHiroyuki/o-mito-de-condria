@@ -4,6 +4,22 @@
 @import '@skeletonlabs/skeleton/optional/presets';
 
 :root {
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
 	touch-action: pan-x pan-y;
 	height: 100%;
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translate(-50%, -50%) translateY(0px);
+	}
+	50% {
+		transform: translate(-50%, -50%) translateY(-10px);
+	}
+}
+
+.animate-float {
+	animation: float 3s ease-in-out infinite;
 }
