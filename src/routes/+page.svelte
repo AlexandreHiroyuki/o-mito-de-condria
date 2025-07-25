@@ -1,6 +1,10 @@
 <script lang="ts">
 </script>
 
+<svelte:head>
+	<title>O Mito de Condria</title>
+</svelte:head>
+
 <div class="flex h-full w-full flex-1 items-center justify-center">
 	<a
 		class="relative flex h-[80%] w-[100%] items-center justify-center bg-[url('/cell_shell.png')] bg-contain bg-center bg-no-repeat transition-transform active:scale-95"

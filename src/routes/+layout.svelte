@@ -2,11 +2,12 @@
 	import CircleFadingArrowUpIcon from '@lucide/svelte/icons/circle-fading-arrow-up';
 	import NotebookPenIcon from '@lucide/svelte/icons/notebook-pen';
 	import SaveIcon from '@lucide/svelte/icons/save';
-	import { Navigation } from '@skeletonlabs/skeleton-svelte';
+	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 
 	import '../app.css';
 	import { bigNumberFormatter } from '../lib/formatter.js';
 	import { gameStore, startGameTimer, stopGameTimer } from '../lib/game.js';
+	import { toaster } from '../lib/toaster.js';
 
 	let value = $state('game');
 	let { children } = $props();
@@ -20,9 +21,11 @@
 	});
 </script>
 
-<main class="flex h-full w-full items-center justify-center">
+<main
+	class="flex h-full w-full items-center justify-center bg-[url('/microscope_background.gif')] bg-center bg-repeat bg-origin-border"
+>
 	<div
-		class="fixed top-0 w-full rounded-b-xl border-5 border-white bg-white p-2 font-semibold text-black shadow-[0_2px_2px_2px] shadow-black/60"
+		class="fixed top-0 z-10 w-full rounded-b-xl border-5 border-white bg-white p-2 font-semibold text-black shadow-[0_2px_2px_2px] shadow-black/60"
 	>
 		<div class="grid grid-cols-4 gap-2 text-center text-sm">
 			<div class="flex flex-col">
@@ -58,17 +61,46 @@
 
 	{@render children()}
 
+	<Toaster
+		{toaster}
+		base="p-4 flex gap-2 items-center justify-center rounded-lg"
+		stateError="bg-gradient-to-r from-error-500 to-error-700 text-white"
+		stateSuccess="bg-gradient-to-r from-success-500 to-success-600 text-black"
+		stateInfo="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+		stateWarning="bg-gradient-to-r from-warning-300 to-warning-500 text-black"
+	/>
+
 	<div
-		class="fixed bottom-0 w-full rounded-t-xl border-white bg-white font-semibold text-black shadow-[0_-2px_2px_2px] shadow-black/60"
+		class="fixed bottom-0 z-10 w-full rounded-t-xl border-white bg-white font-semibold text-black shadow-[0_-2px_2px_2px] shadow-black/60"
 	>
-		<Navigation.Bar {value} onValueChange={(newValue: string) => (value = newValue)}>
-			<Navigation.Tile href="/" id="game" label="Células"
-				><CircleFadingArrowUpIcon /></Navigation.Tile
+		<Navigation.Bar
+			{value}
+			onValueChange={(newValue: string) => (value = newValue)}
+			background="bg-white"
+			classes="rounded-t-xl"
+			tilesClasses="rounded-t-xl"
+		>
+			<Navigation.Tile
+				href="/"
+				id="game"
+				label="Células"
+				classes="rounded-tl-xl flex-col justify-center"
+				active="bg-black text-white"><CircleFadingArrowUpIcon /></Navigation.Tile
 			>
-			<Navigation.Tile href="/discoveries" id="discoveries" label="Descobertas"
-				><NotebookPenIcon /></Navigation.Tile
+			<Navigation.Tile
+				href="/discoveries"
+				id="discoveries"
+				label="Descobertas"
+				classes="flex-col justify-center"
+				active="bg-black text-white"><NotebookPenIcon /></Navigation.Tile
 			>
-			<Navigation.Tile href="/save" id="save" label="Salvar"><SaveIcon /></Navigation.Tile>
+			<Navigation.Tile
+				href="/save"
+				id="save"
+				label="Salvar"
+				classes="rounded-tr-xl flex-col justify-center"
+				active="bg-black text-white"><SaveIcon /></Navigation.Tile
+			>
 		</Navigation.Bar>
 	</div>
 </main>
