@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { exportSave, hasSaveData, resetGame } from '$lib/game.svelte';
+	import { toaster } from '$lib/toaster.svelte';
 	import { onMount } from 'svelte';
-	import { exportSave, hasSaveData, resetGame } from '../../lib/game.js';
-	import { toaster } from '../../lib/toaster.js';
 
 	let hasExistingSave = false;
 	let exportData = '';
@@ -79,7 +79,7 @@
 </svelte:head>
 
 <div class="h-[80vh] overflow-y-auto px-4 pt-20 pb-20">
-	<div class="mb-10 rounded-xl border border-gray-200 bg-white/80 p-6">
+	<div class="mb-10 rounded-xl bg-white/80 p-6">
 		<h2 class="mb-4 text-2xl font-semibold text-gray-700">Exportar Progresso</h2>
 		<p class="mb-6 leading-relaxed text-gray-600">
 			Salve seu progresso atual em um arquivo que pode ser importado posteriormente.
@@ -104,7 +104,7 @@
 		</div>
 	</div>
 
-	<div class="mb-10 rounded-xl border border-gray-200 bg-white/80 p-6">
+	<div class="mb-10 rounded-xl bg-white/80 p-6">
 		<div class="text-center">
 			{#if hasExistingSave}
 				<span
@@ -122,6 +122,17 @@
 				<p class="text-gray-600">Nenhum save encontrado no navegador.</p>
 			{/if}
 		</div>
+	</div>
+
+	<div class="rounded-full bg-white/80 p-2 text-center">
+		<span class="text-xs text-gray-500">Alexandre Hiroyuki Yamauchi @ UFABC</span>
+		<a
+			href="https://github.com/AlexandreHiroyuki"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="text-xs text-gray-500 hover:underline hover:decoration-gray-200"
+			>github.com/AlexandreHiroyuki</a
+		>
 	</div>
 </div>
 

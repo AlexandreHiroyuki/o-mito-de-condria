@@ -4,10 +4,10 @@
 	import SaveIcon from '@lucide/svelte/icons/save';
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 
+	import { bigNumberFormatter } from '$lib/formatter.js';
+	import { gameState, startGameTimer, stopGameTimer } from '$lib/game.svelte';
+	import { toaster } from '$lib/toaster.svelte';
 	import '../app.css';
-	import { bigNumberFormatter } from '../lib/formatter.js';
-	import { gameStore, startGameTimer, stopGameTimer } from '../lib/game.js';
-	import { toaster } from '../lib/toaster.js';
 
 	let value = $state('game');
 	let { children } = $props();
@@ -30,30 +30,30 @@
 		<div class="grid grid-cols-4 gap-2 text-center text-sm">
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-600">Proteínas</span>
-				<span>{bigNumberFormatter.format($gameStore.resources.proteinas)}</span>
+				<span>{bigNumberFormatter.format(gameState.resources.proteinas)}</span>
 				<span class="text-xs text-gray-400"
-					>+{bigNumberFormatter.format($gameStore.gainSpeeds.proteinas)}/s</span
+					>+{bigNumberFormatter.format(gameState.gainSpeeds.proteinas)}/s</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-600">Oxigênio</span>
-				<span>{bigNumberFormatter.format($gameStore.resources.oxigenio)}</span>
+				<span>{bigNumberFormatter.format(gameState.resources.oxigenio)}</span>
 				<span class="text-xs text-gray-400"
-					>+{bigNumberFormatter.format($gameStore.gainSpeeds.oxigenio)}/s</span
+					>+{bigNumberFormatter.format(gameState.gainSpeeds.oxigenio)}/s</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-600">Glicose</span>
-				<span>{bigNumberFormatter.format($gameStore.resources.glicose)}</span>
+				<span>{bigNumberFormatter.format(gameState.resources.glicose)}</span>
 				<span class="text-xs text-gray-400"
-					>+{bigNumberFormatter.format($gameStore.gainSpeeds.glicose)}/s</span
+					>+{bigNumberFormatter.format(gameState.gainSpeeds.glicose)}/s</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-600">ATP (energia)</span>
-				<span>{bigNumberFormatter.format($gameStore.resources.atp)}</span>
+				<span>{bigNumberFormatter.format(gameState.resources.atp)}</span>
 				<span class="text-xs text-gray-400"
-					>+{bigNumberFormatter.format($gameStore.gainSpeeds.atp)}/s</span
+					>+{bigNumberFormatter.format(gameState.gainSpeeds.atp)}/s</span
 				>
 			</div>
 		</div>
