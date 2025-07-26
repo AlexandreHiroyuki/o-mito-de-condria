@@ -232,25 +232,25 @@
 		<div class="mb-4 flex flex-row flex-wrap gap-4">
 			<button
 				class="flex min-w-[120px] items-center justify-center rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:from-green-600 hover:to-green-700 hover:shadow-lg"
-				on:click={handleSave}
+				onclick={handleSave}
 			>
 				Salvar Jogo
 			</button>
 			<button
 				class="flex min-w-[120px] items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
-				on:click={handleExport}
+				onclick={handleExport}
 			>
 				Exportar Save
 			</button>
 			<button
 				class="flex min-w-[120px] items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:from-purple-600 hover:to-purple-700 hover:shadow-lg"
-				on:click={() => (showImportModal = true)}
+				onclick={() => (showImportModal = true)}
 			>
 				Importar Save
 			</button>
 			<button
 				class="flex min-w-[120px] items-center justify-center rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
-				on:click={handleResetClick}
+				onclick={handleResetClick}
 			>
 				Resetar Jogo
 			</button>
@@ -293,8 +293,8 @@
 {#if showResetModal}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-		on:click={handleModalBackdropClick}
-		on:keydown={handleKeydown}
+		onclick={handleModalBackdropClick}
+		onkeydown={handleKeydown}
 		tabindex="-1"
 		aria-modal="true"
 		role="dialog"
@@ -314,13 +314,13 @@
 			<div class="flex gap-3">
 				<button
 					class="flex-1 rounded-lg bg-gray-200 px-4 py-2 font-semibold text-gray-700 transition-colors hover:bg-gray-300"
-					on:click={handleResetCancel}
+					onclick={handleResetCancel}
 				>
 					Cancelar
 				</button>
 				<button
 					class="flex-1 rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 font-semibold text-white transition-all duration-200 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
-					on:click={handleResetConfirm}
+					onclick={handleResetConfirm}
 				>
 					Confirmar Reset
 				</button>
@@ -333,12 +333,12 @@
 {#if showImportModal}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-		on:click={(event) => {
+		onclick={(event) => {
 			if (event.target === event.currentTarget) {
 				closeImportModal();
 			}
 		}}
-		on:keydown={handleKeydown}
+		onkeydown={handleKeydown}
 		tabindex="-1"
 		aria-modal="true"
 		role="dialog"
@@ -348,7 +348,7 @@
 				<h3 class="text-xl font-semibold text-gray-800">Importar Save</h3>
 				<button
 					class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-					on:click={closeImportModal}
+					onclick={closeImportModal}
 				>
 					✕
 				</button>
@@ -367,7 +367,7 @@
 				</div>
 				<button
 					class="w-full rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-2 font-semibold text-white transition-all duration-200 hover:from-purple-600 hover:to-purple-700 hover:shadow-lg"
-					on:click={handleImportFromString}
+					onclick={handleImportFromString}
 				>
 					Importar Save String
 				</button>
@@ -395,7 +395,7 @@
 						type="file"
 						accept=".txt"
 						class="hidden"
-						on:change={handleImportFromFile}
+						onchange={handleImportFromFile}
 					/>
 				</div>
 			</div>
@@ -407,12 +407,12 @@
 {#if showExportModal}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-		on:click={(event) => {
+		onclick={(event) => {
 			if (event.target === event.currentTarget) {
 				closeExportModal();
 			}
 		}}
-		on:keydown={handleKeydown}
+		onkeydown={handleKeydown}
 		tabindex="-1"
 		aria-modal="true"
 		role="dialog"
@@ -422,7 +422,7 @@
 				<h3 class="text-xl font-semibold text-gray-800">Exportar Save</h3>
 				<button
 					class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-					on:click={closeExportModal}
+					onclick={closeExportModal}
 				>
 					✕
 				</button>
@@ -443,13 +443,13 @@
 				<div class="flex gap-3">
 					<button
 						class="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 font-semibold text-white transition-all duration-200 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
-						on:click={copyToClipboard}
+						onclick={copyToClipboard}
 					>
 						Copiar para Área de Transferência
 					</button>
 					<button
 						class="flex-1 rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 font-semibold text-white transition-all duration-200 hover:from-green-600 hover:to-green-700 hover:shadow-lg"
-						on:click={downloadAsText}
+						onclick={downloadAsText}
 					>
 						Baixar como Arquivo
 					</button>

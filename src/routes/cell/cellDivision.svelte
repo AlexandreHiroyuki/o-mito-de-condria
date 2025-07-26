@@ -59,7 +59,7 @@
 				gameState.resources.proteinas < 50 ||
 				gameState.resources.oxigenio < 30 ||
 				gameState.resources.glicose < 25}
-			on:click={handleMitosis}
+			onclick={handleMitosis}
 		>
 			Iniciar Mitose
 		</button>
@@ -103,7 +103,7 @@
 		<button
 			class="rounded-lg bg-purple-500 px-6 py-3 font-medium text-white transition-colors hover:bg-purple-600 active:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400"
 			disabled={gameState.resources.cells < 10}
-			on:click={handleMeiosis}
+			onclick={handleMeiosis}
 		>
 			Iniciar Meiose
 		</button>

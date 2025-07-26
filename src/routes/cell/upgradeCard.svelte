@@ -74,7 +74,7 @@
 			{/if}
 		</div>
 		<button
-			on:click={handlePurchase}
+			onclick={handlePurchase}
 			disabled={!isAvailable}
 			class="rounded-lg px-4 py-2 font-medium transition-colors {buttonClass}"
 		>
