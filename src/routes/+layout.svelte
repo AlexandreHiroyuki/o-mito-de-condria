@@ -3,20 +3,83 @@
 	import NotebookPenIcon from '@lucide/svelte/icons/notebook-pen';
 	import SaveIcon from '@lucide/svelte/icons/save';
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
+	import type { Config } from '@sveltejs/adapter-vercel';
 
 	import { bigNumberFormatter } from '$lib/formatter.js';
-	import { gameState, startGameTimer, stopGameTimer } from '$lib/game.svelte';
+	import {
+		gameState,
+		importSave,
+		loadGame,
+		saveGame,
+		startGameTimer,
+		stopGameTimer
+	} from '$lib/game.svelte';
 	import { toaster } from '$lib/toaster.svelte';
+
 	import '../app.css';
+
+	export const config: Config = {
+		runtime: 'edge'
+	};
 
 	let value = $state('game');
 	let { children } = $props();
+
+	$effect(() => {
+		// Check for save parameter in URL
+		const urlParams = new URLSearchParams(window.location.search);
+		const saveParam = urlParams.get('save');
+
+		if (saveParam) {
+			try {
+				const success = importSave(saveParam);
+				if (success) {
+					toaster.success({
+						title: 'Save carregado com sucesso!',
+						description: 'Seu progresso foi importado da URL.'
+					});
+					// Remove the save parameter from URL to avoid reloading on refresh
+					const newUrl = new URL(window.location.href);
+					newUrl.searchParams.delete('save');
+					window.history.replaceState({}, '', newUrl.toString());
+				} else {
+					toaster.error({
+						title: 'Erro ao carregar save',
+						description: 'Save inválido ou corrompido na URL.'
+					});
+					// Still try to load from localStorage as fallback
+					loadGame();
+				}
+			} catch (error) {
+				console.error('Failed to import save from URL:', error);
+				toaster.error({
+					title: 'Erro ao carregar save',
+					description: 'Não foi possível processar o save da URL.'
+				});
+				// Fallback to localStorage
+				loadGame();
+			}
+		} else {
+			// No save parameter, load from localStorage
+			loadGame();
+		}
+	});
 
 	$effect(() => {
 		startGameTimer();
 
 		return () => {
 			stopGameTimer();
+		};
+	});
+
+	$effect(() => {
+		const autoSaveInterval = setInterval(() => {
+			saveGame();
+		}, 30000);
+
+		return () => {
+			clearInterval(autoSaveInterval);
 		};
 	});
 </script>

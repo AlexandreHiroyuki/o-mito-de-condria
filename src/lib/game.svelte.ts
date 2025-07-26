@@ -31,10 +31,9 @@ const initialGameState: GameState = {
 	meiosisMultiplier: 0
 };
 
-// Immutable state - cannot be reassigned
 export let gameState: GameState = $state(initialGameState);
 
-let timer: number | undefined;
+let timer: NodeJS.Timeout | undefined;
 
 export function startGameTimer() {
 	if (timer) return;
@@ -55,7 +54,6 @@ export function stopGameTimer() {
 }
 
 export function resetGame() {
-	console.log(gameState);
 	stopGameTimer();
 	gameState.resources = { ...initialGameState.resources };
 	gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
@@ -63,7 +61,6 @@ export function resetGame() {
 	gameState.purchasedUpgrades = { ...initialGameState.purchasedUpgrades };
 	gameState.meiosisMultiplier = initialGameState.meiosisMultiplier;
 	startGameTimer();
-	console.log(gameState);
 }
 
 export function saveGame(): string {
@@ -82,15 +79,17 @@ export function loadGame(): boolean {
 
 	try {
 		const saveData = JSON.parse(saveString);
-		// Remove timestamp from the loaded data
 		const { timestamp, ...loadedGameState } = saveData;
 
-		// Update the gameState with loaded data
-		gameState.resources = { ...loadedGameState.resources };
-		gameState.gainSpeeds = { ...loadedGameState.gainSpeeds };
-		gameState.flags = { ...loadedGameState.flags };
-		gameState.purchasedUpgrades = { ...loadedGameState.purchasedUpgrades };
-		gameState.meiosisMultiplier = loadedGameState.meiosisMultiplier;
+		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
+		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
+		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
+		gameState.purchasedUpgrades = {
+			...initialGameState.purchasedUpgrades,
+			...loadedGameState.purchasedUpgrades
+		};
+		gameState.meiosisMultiplier =
+			loadedGameState.meiosisMultiplier || initialGameState.meiosisMultiplier;
 
 		return true;
 	} catch (error) {
@@ -103,22 +102,44 @@ export function exportSave(): string {
 	return saveGame();
 }
 
+export function importSave(saveString: string): boolean {
+	try {
+		const saveData = JSON.parse(saveString);
+		const { timestamp, ...loadedGameState } = saveData;
+
+		// Validate that the save data has the expected structure
+		if (
+			!loadedGameState.resources ||
+			!loadedGameState.gainSpeeds ||
+			!loadedGameState.purchasedUpgrades
+		) {
+			console.error('Invalid save data structure');
+			return false;
+		}
+
+		// Load the game state
+		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
+		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
+		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
+		gameState.purchasedUpgrades = {
+			...initialGameState.purchasedUpgrades,
+			...loadedGameState.purchasedUpgrades
+		};
+		gameState.meiosisMultiplier =
+			loadedGameState.meiosisMultiplier || initialGameState.meiosisMultiplier;
+
+		// Save to localStorage to persist the imported data
+		localStorage.setItem('o-mito-de-condria-save', saveString);
+
+		return true;
+	} catch (error) {
+		console.error('Failed to import save data:', error);
+		return false;
+	}
+}
+
 export function hasSaveData(): boolean {
 	return localStorage.getItem('o-mito-de-condria-save') !== null;
-}
-
-export function hasUpgrade(upgradeId: string): boolean {
-	return gameState.purchasedUpgrades[upgradeId] || false;
-}
-
-export function getPurchasedUpgrades(): string[] {
-	return Object.keys(gameState.purchasedUpgrades).filter((key) => gameState.purchasedUpgrades[key]);
-}
-
-export function canAffordUpgrade(cost: number): boolean {
-	// For now, we'll use ATP as the currency
-	// You can modify this logic to use different resources or combinations
-	return gameState.resources.atp >= cost;
 }
 
 export function purchaseUpgradeWithCost(upgradeId: string, cost: number): boolean {
