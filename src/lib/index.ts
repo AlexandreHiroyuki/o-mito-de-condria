@@ -9,7 +9,7 @@ export * from './game.upgrades.svelte.js';
 export * from './game.discoveries.svelte.js';
 
 // Utility functions
-export * from './formatter.js';
+export * from './utilities.js';
 
 // Toaster instance
 export * from './toaster.svelte.js';

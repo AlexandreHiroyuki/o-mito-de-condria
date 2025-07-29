@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { gameState, purchaseUpgradeWithCost } from '$lib/game.svelte';
 	import type { Upgrade } from '$lib/game.upgrades.svelte';
+	import { canAffordCost, formatCost } from '$lib/utilities.js';
 
 	const { upgrade } = $props<{ upgrade: Upgrade }>();
 
 	// Reactive statements to check if upgrade is purchased, affordable, and requirements are met
 	const purchased = $derived(gameState.purchasedUpgrades[upgrade.id] || false);
-	const canAfford = $derived(gameState.resources.atp >= upgrade.cost);
+	const canAfford = $derived(canAffordCost(gameState.resources, upgrade.cost));
 	const unmetRequirements = $derived(upgrade.requirements ? upgrade.requirements(gameState) : []);
 
 	function handlePurchase() {
@@ -65,7 +66,7 @@
 				</p>
 			{/if}
 			<p class="text-sm font-medium text-gray-700">
-				Custo: {upgrade.cost} ATP
+				Custo: {formatCost(upgrade.cost)}
 			</p>
 			{#if unmetRequirements.length > 0}
 				<p class="text-sm font-medium text-red-600">

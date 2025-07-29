@@ -5,7 +5,6 @@
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 	import type { Config } from '@sveltejs/adapter-vercel';
 
-	import { bigNumberFormatter } from '$lib/formatter.js';
 	import {
 		gameState,
 		importSave,
@@ -15,6 +14,7 @@
 		stopGameTimer
 	} from '$lib/game.svelte';
 	import { toaster } from '$lib/toaster.svelte';
+	import { bigNumberFormatter } from '$lib/utilities.js';
 
 	import '../app.css';
 

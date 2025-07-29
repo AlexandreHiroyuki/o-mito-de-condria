@@ -1,4 +1,53 @@
-import type { GameState } from './game.d.ts';
+import type { GameResources, GameState, MitosisStage } from './game.d.ts';
+import { discoveries } from './game.discoveries.svelte.js';
+import { toaster } from './toaster.svelte.js';
+
+export const mitosisDuration = 5 * 60; // unit: seconds
+
+export const mitosisStages: MitosisStage[] = [
+	{
+		id: 'interphase',
+		name: 'Interfase',
+		description: 'A célula cresce e replica seu DNA',
+		resourceCost: {}, // No cost for interphase
+		progressMark: 0 // No duration - it's the default state
+	},
+	{
+		id: 'prophase',
+		name: 'Prófase',
+		description: 'Os cromossomos se condensam e o fuso mitótico se forma',
+		resourceCost: { atp: 25, oxigenio: 15 },
+		progressMark: 0.2
+	},
+	{
+		id: 'metaphase',
+		name: 'Metáfase',
+		description: 'Os cromossomos se alinham no centro da célula',
+		resourceCost: { atp: 30, glicose: 20 },
+		progressMark: 0.4
+	},
+	{
+		id: 'anaphase',
+		name: 'Anáfase',
+		description: 'Os cromossomos se separam e migram para os polos',
+		resourceCost: { atp: 35, proteinas: 20, oxigenio: 10 },
+		progressMark: 0.6
+	},
+	{
+		id: 'telophase',
+		name: 'Telófase',
+		description: 'A membrana nuclear se reforma e a citocinese começa',
+		resourceCost: { atp: 40, glicose: 25, proteinas: 15 },
+		progressMark: 0.8
+	},
+	{
+		id: 'cytokinesis',
+		name: 'Citocinese',
+		description: 'A célula se divide completamente em duas células filhas',
+		resourceCost: { atp: 50, proteinas: 30, oxigenio: 20, glicose: 15 },
+		progressMark: 1.0
+	}
+];
 
 const initialGameState: GameState = {
 	resources: {
@@ -16,6 +65,7 @@ const initialGameState: GameState = {
 		cells: 0
 	},
 	flags: {},
+	discoveries: {},
 	purchasedUpgrades: {
 		mitochondria: false,
 		nucleus: false,
@@ -28,7 +78,11 @@ const initialGameState: GameState = {
 		dnaReplication: false,
 		proteinExport: false
 	},
-	meiosisMultiplier: 0
+	meiosisMultiplier: 0,
+	mitosisProgress: {
+		currentStage: 0,
+		progress: 0
+	}
 };
 
 export let gameState: GameState = $state(initialGameState);
@@ -39,10 +93,37 @@ export function startGameTimer() {
 	if (timer) return;
 
 	timer = setInterval(() => {
-		gameState.resources.proteinas += gameState.gainSpeeds.proteinas;
-		gameState.resources.oxigenio += gameState.gainSpeeds.oxigenio;
-		gameState.resources.glicose += gameState.gainSpeeds.glicose;
-		gameState.resources.atp += gameState.gainSpeeds.atp;
+		const getEffectiveGainSpeed = (initialSpeed: number, currentSpeed: number): number => {
+			if (currentSpeed < initialSpeed) return initialSpeed;
+			return currentSpeed;
+		};
+
+		gameState.resources.proteinas += getEffectiveGainSpeed(
+			initialGameState.gainSpeeds.proteinas,
+			gameState.gainSpeeds.proteinas
+		);
+		gameState.resources.oxigenio += getEffectiveGainSpeed(
+			initialGameState.gainSpeeds.oxigenio,
+			gameState.gainSpeeds.oxigenio
+		);
+		gameState.resources.glicose += getEffectiveGainSpeed(
+			initialGameState.gainSpeeds.glicose,
+			gameState.gainSpeeds.glicose
+		);
+		gameState.resources.atp += getEffectiveGainSpeed(
+			initialGameState.gainSpeeds.atp,
+			gameState.gainSpeeds.atp
+		);
+
+		if (
+			gameState.mitosisProgress.currentStage > 0 &&
+			gameState.mitosisProgress.progress <
+				mitosisStages[gameState.mitosisProgress.currentStage].progressMark
+		) {
+			gameState.mitosisProgress.progress += 1 / mitosisDuration;
+		}
+
+		console.log(gameState.mitosisProgress.progress);
 	}, 1000);
 }
 
@@ -58,8 +139,10 @@ export function resetGame() {
 	gameState.resources = { ...initialGameState.resources };
 	gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
 	gameState.flags = { ...initialGameState.flags };
+	gameState.discoveries = { ...initialGameState.discoveries };
 	gameState.purchasedUpgrades = { ...initialGameState.purchasedUpgrades };
 	gameState.meiosisMultiplier = initialGameState.meiosisMultiplier;
+	resetMitosis();
 	startGameTimer();
 }
 
@@ -84,12 +167,14 @@ export function loadGame(): boolean {
 		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
 		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
 		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
+		gameState.discoveries = { ...initialGameState.discoveries, ...loadedGameState.discoveries };
 		gameState.purchasedUpgrades = {
 			...initialGameState.purchasedUpgrades,
 			...loadedGameState.purchasedUpgrades
 		};
 		gameState.meiosisMultiplier =
 			loadedGameState.meiosisMultiplier || initialGameState.meiosisMultiplier;
+		gameState.mitosisProgress = loadedGameState.mitosisProgress || initialGameState.mitosisProgress;
 
 		return true;
 	} catch (error) {
@@ -121,6 +206,7 @@ export function importSave(saveString: string): boolean {
 		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
 		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
 		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
+		gameState.discoveries = { ...initialGameState.discoveries, ...loadedGameState.discoveries };
 		gameState.purchasedUpgrades = {
 			...initialGameState.purchasedUpgrades,
 			...loadedGameState.purchasedUpgrades
@@ -142,40 +228,39 @@ export function hasSaveData(): boolean {
 	return localStorage.getItem('o-mito-de-condria-save') !== null;
 }
 
-export function purchaseUpgradeWithCost(upgradeId: string, cost: number): boolean {
+export function purchaseUpgradeWithCost(upgradeId: string, cost: Partial<GameResources>): boolean {
 	// Check if upgrade is already purchased
 	if (gameState.purchasedUpgrades[upgradeId]) {
 		return false;
 	}
 
-	// Check if player can afford the upgrade
-	if (gameState.resources.atp < cost) {
-		return false;
+	// Check if player can afford all required resources
+	for (const [resource, amount] of Object.entries(cost)) {
+		if (gameState.resources[resource as keyof GameResources] < amount) {
+			return false;
+		}
 	}
 
-	// Deduct cost and add upgrade to purchased list
-	gameState.resources.atp -= cost;
+	// Deduct all costs and add upgrade to purchased list
+	for (const [resource, amount] of Object.entries(cost)) {
+		gameState.resources[resource as keyof GameResources] -= amount;
+	}
 	gameState.purchasedUpgrades[upgradeId] = true;
 	return true;
 }
 
-export function performMitosis(): boolean {
-	// Check if player has enough resources for mitosis
-	if (
-		gameState.resources.atp < 100 ||
-		gameState.resources.proteinas < 50 ||
-		gameState.resources.oxigenio < 30 ||
-		gameState.resources.glicose < 25
-	) {
+export function discover(discoveryId: string): boolean {
+	if (gameState.discoveries[discoveryId]) {
 		return false;
 	}
+	gameState.discoveries[discoveryId] = true;
 
-	// Deduct resources and gain cells
-	gameState.resources.atp -= 100;
-	gameState.resources.proteinas -= 50;
-	gameState.resources.oxigenio -= 30;
-	gameState.resources.glicose -= 25;
-	gameState.resources.cells += 1;
+	toaster.warning({
+		title: discoveries[discoveryId].name,
+		description: discoveries[discoveryId].message,
+		duration: 3000
+	});
+
 	return true;
 }
 
@@ -192,6 +277,7 @@ export function performMeiosis(): boolean {
 	gameState.resources = { ...initialGameState.resources };
 	gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
 	gameState.flags = { ...initialGameState.flags };
+	gameState.discoveries = { ...initialGameState.discoveries };
 	gameState.purchasedUpgrades = { ...initialGameState.purchasedUpgrades };
 	gameState.meiosisMultiplier = newMultiplier;
 
@@ -203,4 +289,58 @@ export function performMeiosis(): boolean {
 	gameState.gainSpeeds.atp += currentGainSpeeds.atp * (newMultiplier - 1);
 
 	return true;
+}
+
+export function canProgressMitosis(): boolean {
+	const currentStageIndex = gameState.mitosisProgress.currentStage;
+	const currentStage = mitosisStages[currentStageIndex];
+
+	if (gameState.mitosisProgress.progress < currentStage.progressMark) {
+		return false;
+	}
+
+	if (currentStageIndex > 0) {
+		for (const [resource, amount] of Object.entries(currentStage.resourceCost)) {
+			if (gameState.resources[resource as keyof GameResources] < amount) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+export function transitionMitosisStage(): boolean {
+	const currentStageIndex = gameState.mitosisProgress.currentStage;
+	const currentStage = mitosisStages[currentStageIndex];
+
+	if (!canProgressMitosis()) {
+		return false;
+	}
+
+	for (const [resource, amount] of Object.entries(currentStage.resourceCost)) {
+		gameState.resources[resource as keyof GameResources] -= amount as number;
+	}
+
+	const nextStageIndex = currentStageIndex + 1;
+
+	// If we've completed all stages (cytokinesis), go back to stage 0 and give reward
+	if (nextStageIndex >= mitosisStages.length) {
+		gameState.mitosisProgress.currentStage = 0;
+		gameState.mitosisProgress.progress = 0;
+		gameState.resources.cells += 1;
+		return true;
+	}
+
+	// Move to next stage and start timer
+	gameState.mitosisProgress.currentStage = nextStageIndex;
+
+	return true;
+}
+
+export function resetMitosis(): void {
+	gameState.mitosisProgress = {
+		currentStage: 0,
+		progress: 0
+	};
 }

@@ -1,11 +1,12 @@
-import type { GameState } from './game.d.ts';
+import type { GameResources, GameState } from './game.d.ts';
+import { discover } from './game.svelte.js';
 
 export type Upgrade = {
 	id: string;
 	name: string;
 	description: string;
 	effectDescription?: string;
-	cost: number;
+	cost: Partial<GameResources>;
 	effect: (gameState: GameState) => void;
 	requirements?: (gameState: GameState) => string[];
 };
@@ -16,20 +17,24 @@ export const upgrades: Record<string, Upgrade> = {
 		name: 'Mitocôndria',
 		description:
 			'Encontro com a mitológica Côndria! Uma parceiria mutualista nunca antes vista na história do micro mundo.',
-		effectDescription: 'Desbloqueia aprimoramentos adicionais',
-		cost: 10,
+		effectDescription: 'Consome Oxigênio e Glicose para produzir ATP +5/s',
+		cost: { atp: 8 },
 		effect: (gameState: GameState) => {
-			// Mitochondria upgrade effect - could add special bonuses here
+			gameState.gainSpeeds.atp += 5;
+			// Consume oxygen and glucose to produce ATP
+			gameState.gainSpeeds.oxigenio -= 2;
+			gameState.gainSpeeds.glicose -= 1.5;
+			discover('mitochondria');
 		}
 	},
 	nucleus: {
 		id: 'nucleus',
 		name: 'Núcleo Celular',
 		description: 'Envolve o material genético da célula em uma membrana nuclear (carioteca).',
-		effectDescription: 'Desbloqueia aprimoramentos adicionais',
-		cost: 15,
+		effectDescription: 'Proteínas +1/s, Desbloqueia aprimoramentos adicionais',
+		cost: { atp: 10 },
 		effect: (gameState: GameState) => {
-			// Nucleus upgrade effect - could add special bonuses here
+			gameState.gainSpeeds.proteinas += 1;
 		}
 	},
 	ribosomes: {
@@ -37,7 +42,7 @@ export const upgrades: Record<string, Upgrade> = {
 		name: 'Ribossomos',
 		description: 'Fábricas de proteínas da célula. Essenciais para a síntese proteica.',
 		effectDescription: 'Proteínas +2/s, Desbloqueia aprimoramentos adicionais',
-		cost: 6,
+		cost: { atp: 6 },
 		effect: (gameState: GameState) => {
 			gameState.gainSpeeds.proteinas += 2;
 		}
@@ -46,10 +51,11 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'golgiApparatus',
 		name: 'Complexo de Golgi',
 		description: 'Sistema de empacotamento e distribuição de proteínas.',
-		effectDescription: 'Desbloqueia aprimoramentos adicionais',
-		cost: 12,
+		effectDescription: 'Proteínas +1.5/s, ATP +1/s',
+		cost: { atp: 18, proteinas: 5 },
 		effect: (gameState: GameState) => {
-			// Golgi apparatus upgrade effect - could add special bonuses here
+			gameState.gainSpeeds.proteinas += 1.5;
+			gameState.gainSpeeds.atp += 1;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -63,10 +69,10 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'proteinBoost',
 		name: 'Síntese Proteica',
 		description: 'Aumenta a produção de proteínas.',
-		effectDescription: 'Proteínas +0.1/s',
-		cost: 5,
+		effectDescription: 'Proteínas +1/s',
+		cost: { atp: 12, proteinas: 8 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.proteinas += 0.1;
+			gameState.gainSpeeds.proteinas += 1;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -80,10 +86,10 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'oxygenBoost',
 		name: 'Respiração Celular',
 		description: 'Melhora a captação de oxigênio.',
-		effectDescription: 'Oxigênio +0.15/s',
-		cost: 7,
+		effectDescription: 'Oxigênio +1.5/s',
+		cost: { atp: 15, glicose: 8 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.oxigenio += 0.15;
+			gameState.gainSpeeds.oxigenio += 1.5;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -97,10 +103,10 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'glucoseBoost',
 		name: 'Metabolismo da Glicose',
 		description: 'Aumenta a eficiência do metabolismo da glicose.',
-		effectDescription: 'Glicose +0.12/s',
-		cost: 6,
+		effectDescription: 'Glicose +1.2/s',
+		cost: { atp: 14, oxigenio: 6 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.glicose += 0.12;
+			gameState.gainSpeeds.glicose += 1.2;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -114,10 +120,10 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'atpBoost',
 		name: 'Produção de ATP',
 		description: 'Aumenta a produção de ATP através da fosforilação oxidativa.',
-		effectDescription: 'ATP +0.2/s',
-		cost: 9,
+		effectDescription: 'ATP +2/s',
+		cost: { atp: 20, oxigenio: 10, glicose: 8 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.atp += 0.2;
+			gameState.gainSpeeds.atp += 2;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -131,10 +137,10 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'dnaReplication',
 		name: 'Replicação do DNA',
 		description: 'Permite a replicação do material genético para divisão celular.',
-		effectDescription: 'Proteínas +0.3/s',
-		cost: 20,
+		effectDescription: 'Proteínas +3/s',
+		cost: { atp: 30, proteinas: 15, oxigenio: 12 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.proteinas += 0.3;
+			gameState.gainSpeeds.proteinas += 3;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];
@@ -151,11 +157,11 @@ export const upgrades: Record<string, Upgrade> = {
 		id: 'proteinExport',
 		name: 'Exportação de Proteínas',
 		description: 'Sistema avançado de exportação de proteínas para fora da célula.',
-		effectDescription: 'Proteínas +0.25/s, ATP +0.1/s',
-		cost: 18,
+		effectDescription: 'Proteínas +2.5/s, ATP +1.5/s',
+		cost: { atp: 25, proteinas: 20, glicose: 15 },
 		effect: (gameState: GameState) => {
-			gameState.gainSpeeds.proteinas += 0.25;
-			gameState.gainSpeeds.atp += 0.1;
+			gameState.gainSpeeds.proteinas += 2.5;
+			gameState.gainSpeeds.atp += 1.5;
 		},
 		requirements: (gameState: GameState) => {
 			const unmet: string[] = [];

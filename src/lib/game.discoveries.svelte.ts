@@ -1,12 +1,14 @@
-import type { GameState } from './game.d.ts';
+export type Discovery = {
+	id: string;
+	name: string;
+	message: string;
+};
 
-export const discoveries = {
+export const discoveries: Record<string, Discovery> = {
 	mitochondria: {
 		id: 'mitochondria',
 		name: 'O Mito de Côndria!',
-		description:
-			'Você encontrou a mitológica Côndria! Uma parceiria mutualista nunca antes vista na história do micro mundo.',
-
-		onDiscover: (gameState: GameState) => {}
+		message:
+			'Você encontrou a mitológica Côndria! Uma parceiria mutualista nunca antes vista na história do micro mundo.'
 	}
 };

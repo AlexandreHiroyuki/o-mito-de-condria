@@ -1,9 +1,40 @@
 <script lang="ts">
-	import { bigNumberFormatter } from '$lib/formatter.js';
-	import { gameState, performMeiosis, performMitosis } from '$lib/game.svelte';
+	import {
+		canProgressMitosis,
+		gameState,
+		mitosisDuration,
+		mitosisStages,
+		performMeiosis,
+		transitionMitosisStage
+	} from '$lib/game.svelte';
+	import { bigNumberFormatter, formatCost, formatTimeRemaining } from '$lib/utilities.js';
+	import { Progress } from '@skeletonlabs/skeleton-svelte';
+	import { onDestroy, onMount } from 'svelte';
+
+	let timer: NodeJS.Timeout;
+
+	onMount(() => {
+		// Update UI every 100ms for smoother progress bar updates
+		timer = setInterval(() => {
+			// Trigger reactivity by accessing gameState
+			gameState.mitosisProgress;
+		}, 100);
+	});
+
+	onDestroy(() => {
+		if (timer) {
+			clearInterval(timer);
+		}
+	});
 
 	function handleMitosis() {
-		if (performMitosis()) {
+		if (transitionMitosisStage()) {
+			// Success feedback could be added here
+		}
+	}
+
+	function handleProgressMitosis() {
+		if (transitionMitosisStage()) {
 			// Success feedback could be added here
 		}
 	}
@@ -13,6 +44,11 @@
 			// Success feedback could be added here
 		}
 	}
+
+	// Reactive statements for mitosis progress
+	const currentStage = $derived(mitosisStages[gameState.mitosisProgress.currentStage]);
+	const currentStageIndex = $derived(gameState.mitosisProgress.currentStage);
+	const canProgress = $derived(canProgressMitosis());
 </script>
 
 <h2 class="mb-4 text-xl font-bold">Divisão Celular</h2>
@@ -29,42 +65,100 @@
 	</div>
 </div>
 
-<!-- Mitosis Section -->
-<div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
-	<div class="text-center">
-		<div
-			class="mx-auto mb-4 h-32 w-32 bg-[url('/cell_shell.png')] bg-contain bg-center bg-no-repeat"
-		></div>
-		<h3 class="mb-2 text-lg font-semibold text-green-700">Mitose</h3>
-		<p class="mb-4 text-sm text-gray-600">
-			Divida sua célula para criar uma nova célula idêntica. Ganhe células como um novo recurso!
-		</p>
+<!-- Mitosis Progress Section -->
+{#if gameState.mitosisProgress.progress > 0}
+	<div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
+		<div class="text-center">
+			<h3 class="mb-4 text-lg font-semibold text-green-700">Mitose em Progresso</h3>
 
-		<!-- Mitosis Requirements -->
-		<div class="mb-4 rounded-lg bg-green-50 p-4">
-			<h4 class="mb-2 font-semibold text-green-800">Requisitos para Mitose:</h4>
-			<ul class="text-sm text-green-700">
-				<li>• 100 ATP</li>
-				<li>• 50 Proteínas</li>
-				<li>• 30 Oxigênio</li>
-				<li>• 25 Glicose</li>
-			</ul>
-			<div class="mt-2 text-xs text-green-600">Recompensa: +1 Célula</div>
+			<!-- Current Stage Progress -->
+			{#if currentStage}
+				<div class="mb-4">
+					<!-- Overall Progress -->
+					<div class="mb-3">
+						<h4 class="mb-2 font-semibold text-gray-800">Progresso Geral da Mitose</h4>
+						<div class="flex items-center gap-3">
+							<div class="text-sm font-medium text-blue-600">
+								{Math.round(gameState.mitosisProgress.progress * 100)}%
+							</div>
+							<div class="flex-1">
+								<Progress
+									value={Math.min(gameState.mitosisProgress.progress * 100, 100)}
+									max={100}
+									meterBg="bg-blue-500"
+								/>
+							</div>
+							{#if gameState.mitosisProgress.progress > 0}
+								<div class="text-xs text-gray-600">
+									{formatTimeRemaining(
+										(mitosisDuration - gameState.mitosisProgress.progress * mitosisDuration) * 1000
+									)}
+								</div>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Current Stage Info -->
+					<div class="mb-3">
+						<h4 class="mb-2 font-semibold text-gray-800">{currentStage.name}</h4>
+						<p class="mb-3 text-sm text-gray-600">{currentStage.description}</p>
+						{#if currentStageIndex > 0}
+							<div class="mb-3 text-sm">
+								<span class="font-medium">Custo: {formatCost(currentStage.resourceCost)}</span>
+							</div>
+						{/if}
+					</div>
+
+					<!-- Progress Button -->
+					<button
+						class="rounded-lg bg-green-500 px-4 py-2 font-medium text-white transition-colors hover:bg-green-600 active:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+						disabled={!canProgress}
+						onclick={handleProgressMitosis}
+					>
+						{canProgress ? 'Progresso para Próximo Estágio' : 'Aguardando Conclusão'}
+					</button>
+				</div>
+			{/if}
 		</div>
-
-		<!-- Mitosis Button -->
-		<button
-			class="rounded-lg bg-green-500 px-6 py-3 font-medium text-white transition-colors hover:bg-green-600 active:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-			disabled={gameState.resources.atp < 100 ||
-				gameState.resources.proteinas < 50 ||
-				gameState.resources.oxigenio < 30 ||
-				gameState.resources.glicose < 25}
-			onclick={handleMitosis}
-		>
-			Iniciar Mitose
-		</button>
 	</div>
-</div>
+{:else}
+	<!-- Mitosis Section -->
+	<div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
+		<div class="text-center">
+			<div
+				class="mx-auto mb-4 h-32 w-32 bg-[url('/cell_shell.png')] bg-contain bg-center bg-no-repeat"
+			></div>
+			<h3 class="mb-2 text-lg font-semibold text-green-700">Mitose</h3>
+			<p class="mb-4 text-sm text-gray-600">
+				Divida sua célula para criar uma nova célula idêntica. Ganhe células como um novo recurso!
+			</p>
+
+			<!-- Mitosis Stages Overview -->
+			<div class="mb-4 rounded-lg bg-green-50 p-4">
+				<h4 class="mb-2 font-semibold text-green-800">Estágios da Mitose:</h4>
+				<div class="text-sm text-green-700">
+					<div class="mb-1">0. Interfase - Estado padrão da célula (sem custo)</div>
+					<div class="mb-1">1. Prófase - 25 ATP, 15 Oxigênio (3 min)</div>
+					<div class="mb-1">2. Metáfase - 30 ATP, 20 Glicose (2 min)</div>
+					<div class="mb-1">3. Anáfase - 35 ATP, 20 Proteínas, 10 Oxigênio (3 min)</div>
+					<div class="mb-1">4. Telófase - 40 ATP, 25 Glicose, 15 Proteínas (2 min)</div>
+					<div class="mb-1">
+						5. Citocinese - 50 ATP, 30 Proteínas, 20 Oxigênio, 15 Glicose (3 min)
+					</div>
+				</div>
+				<div class="mt-2 text-xs text-green-600">Recompensa: +1 Célula</div>
+			</div>
+
+			<!-- Mitosis Start Button -->
+			<button
+				class="rounded-lg bg-green-500 px-6 py-3 font-medium text-white transition-colors hover:bg-green-600 active:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+				onclick={handleMitosis}
+			>
+				Iniciar Mitose
+			</button>
+		</div>
+	</div>
+{/if}
 
 <!-- Meiosis Section -->
 <div class="rounded-lg bg-white p-6 shadow-lg">
