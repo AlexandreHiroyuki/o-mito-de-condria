@@ -1,5 +1,6 @@
 import type { GameResources, GameState, MitosisStage } from './game.d.ts';
 import { discoveries } from './game.discoveries.svelte.js';
+import { upgrades } from './game.upgrades.svelte.js';
 import { toaster } from './toaster.svelte.js';
 
 export const mitosisDuration = 5 * 60; // unit: seconds
@@ -66,18 +67,7 @@ const initialGameState: GameState = {
 	},
 	flags: {},
 	discoveries: {},
-	purchasedUpgrades: {
-		mitochondria: false,
-		nucleus: false,
-		ribosomes: false,
-		golgiApparatus: false,
-		proteinBoost: false,
-		oxygenBoost: false,
-		glucoseBoost: false,
-		atpBoost: false,
-		dnaReplication: false,
-		proteinExport: false
-	},
+	purchasedUpgrades: {},
 	meiosisMultiplier: 0,
 	mitosisProgress: {
 		currentStage: 0,
@@ -122,8 +112,6 @@ export function startGameTimer() {
 		) {
 			gameState.mitosisProgress.progress += 1 / mitosisDuration;
 		}
-
-		console.log(gameState.mitosisProgress.progress);
 	}, 1000);
 }
 
@@ -131,6 +119,18 @@ export function stopGameTimer() {
 	if (timer) {
 		clearInterval(timer);
 		timer = undefined;
+	}
+}
+
+export function applyAllPurchasedUpgrades(): void {
+	// Reset gain speeds to initial values
+	gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
+
+	// Apply effects of all purchased upgrades
+	for (const [upgradeId, isPurchased] of Object.entries(gameState.purchasedUpgrades)) {
+		if (isPurchased && upgrades[upgradeId]) {
+			upgrades[upgradeId].effect(gameState);
+		}
 	}
 }
 
@@ -165,7 +165,7 @@ export function loadGame(): boolean {
 		const { timestamp, ...loadedGameState } = saveData;
 
 		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
-		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
+		gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
 		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
 		gameState.discoveries = { ...initialGameState.discoveries, ...loadedGameState.discoveries };
 		gameState.purchasedUpgrades = {
@@ -175,6 +175,9 @@ export function loadGame(): boolean {
 		gameState.meiosisMultiplier =
 			loadedGameState.meiosisMultiplier || initialGameState.meiosisMultiplier;
 		gameState.mitosisProgress = loadedGameState.mitosisProgress || initialGameState.mitosisProgress;
+
+		// Apply all purchased upgrades' effects
+		applyAllPurchasedUpgrades();
 
 		return true;
 	} catch (error) {
@@ -204,7 +207,7 @@ export function importSave(saveString: string): boolean {
 
 		// Load the game state
 		gameState.resources = { ...initialGameState.resources, ...loadedGameState.resources };
-		gameState.gainSpeeds = { ...initialGameState.gainSpeeds, ...loadedGameState.gainSpeeds };
+		gameState.gainSpeeds = { ...initialGameState.gainSpeeds };
 		gameState.flags = { ...initialGameState.flags, ...loadedGameState.flags };
 		gameState.discoveries = { ...initialGameState.discoveries, ...loadedGameState.discoveries };
 		gameState.purchasedUpgrades = {
@@ -213,6 +216,9 @@ export function importSave(saveString: string): boolean {
 		};
 		gameState.meiosisMultiplier =
 			loadedGameState.meiosisMultiplier || initialGameState.meiosisMultiplier;
+
+		// Apply all purchased upgrades' effects
+		applyAllPurchasedUpgrades();
 
 		// Save to localStorage to persist the imported data
 		localStorage.setItem('o-mito-de-condria-save', saveString);
@@ -329,6 +335,7 @@ export function transitionMitosisStage(): boolean {
 		gameState.mitosisProgress.currentStage = 0;
 		gameState.mitosisProgress.progress = 0;
 		gameState.resources.cells += 1;
+		discover('cellDivision');
 		return true;
 	}
 

@@ -4,6 +4,7 @@
 	import SaveIcon from '@lucide/svelte/icons/save';
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 	import type { Config } from '@sveltejs/adapter-vercel';
+	import { onMount } from 'svelte';
 
 	import {
 		gameState,
@@ -24,8 +25,11 @@
 
 	let value = $state('game');
 	let { children } = $props();
+	// let gameLoaded = $state(false);
 
-	$effect(() => {
+	onMount(() => {
+		// if (gameLoaded) return; // Prevent multiple loads
+
 		// Check for save parameter in URL
 		const urlParams = new URLSearchParams(window.location.search);
 		const saveParam = urlParams.get('save');
@@ -63,6 +67,8 @@
 			// No save parameter, load from localStorage
 			loadGame();
 		}
+
+		// gameLoaded = true;
 	});
 
 	$effect(() => {
