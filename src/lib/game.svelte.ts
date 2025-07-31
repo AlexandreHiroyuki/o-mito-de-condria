@@ -6,6 +6,25 @@ import { toaster } from './toaster.svelte.js';
 export const mitosisCellCostTax = 0.1;
 export const mitosisDuration = 5 * 60; // unit: seconds
 
+export function getCellShellImage(stageId: string): string {
+	switch (stageId) {
+		case 'interphase':
+			return '/cell_shell.png';
+		case 'prophase':
+			return '/cell_shell_prophase.png';
+		case 'metaphase':
+			return '/cell_shell_metaphase.png';
+		case 'anaphase':
+			return '/cell_shell_anaphase.png';
+		case 'telophase':
+			return '/cell_shell_telophase.png';
+		case 'cytokinesis':
+			return '/cell_shell_cytokinesis.png';
+		default:
+			return '/cell_shell.png';
+	}
+}
+
 export const mitosisStages: MitosisStage[] = [
 	{
 		id: 'interphase',

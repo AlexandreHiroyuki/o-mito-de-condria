@@ -2,6 +2,7 @@
 	import {
 		canProgressMitosis,
 		gameState,
+		getCellShellImage,
 		mitosisDuration,
 		mitosisStages,
 		transitionMitosisStage
@@ -43,16 +44,19 @@
 <div class="flex h-full w-full flex-1 flex-col items-center justify-center">
 	<!-- Cell Shell Sprite -->
 	<a
-		class="relative flex h-[60%] w-[100%] items-center justify-center bg-[url('/cell_shell.png')] bg-contain bg-center bg-no-repeat transition-transform active:scale-95"
+		class="relative flex h-[60%] w-[100%] items-center justify-center bg-contain bg-center bg-no-repeat transition-transform active:scale-95"
+		style="background-image: url('{getCellShellImage(
+			mitosisStages[gameState.mitosisProgress.currentStage].id
+		)}')"
 		aria-label="Cell Shell"
 		href="/cell"
 	>
-		{#if gameState.purchasedUpgrades.nucleus}
+		{#if gameState.purchasedUpgrades.nucleus && mitosisStages[gameState.mitosisProgress.currentStage].id === 'interphase'}
 			<div
 				class="animate-float absolute top-1/2 left-1/2 h-[25%] w-[25%] bg-[url('/nucleus.png')] bg-contain bg-center bg-no-repeat"
 			></div>
 		{/if}
-		{#if gameState.purchasedUpgrades.mitochondria}
+		{#if gameState.purchasedUpgrades.mitochondria && !['anaphase', 'telophase', 'cytokinesis'].includes(mitosisStages[gameState.mitosisProgress.currentStage].id)}
 			<div
 				class="animate-float absolute top-1/2 left-1/2 h-[9%] w-[9%] -translate-x-[84px] -translate-y-[60px] rotate-42 bg-[url('/mithocondria.png')] bg-contain bg-center bg-no-repeat"
 			></div>
