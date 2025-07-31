@@ -120,5 +120,14 @@ export const discoveries: Record<string, Discovery> = {
 		description:
 			'A endocitose é o processo de internalização de fluidos e macromoléculas através da invaginação da membrana plasmática.',
 		image: '/cell_shell.png'
+	},
+	meiosis: {
+		id: 'meiosis',
+		name: 'Meiose! Um novo começo para a vida!',
+		message:
+			'Você ativou a meiose pela primeira vez! O processo de divisão celular que forma gametas.',
+		description:
+			'Novo organismo, novo mundo! A meiose é um tipo especial de divisão celular que reduz o número de cromossomos pela metade, formando células reprodutivas (gametas) com metade do material genético.',
+		image: '/chromosome.png'
 	}
 };

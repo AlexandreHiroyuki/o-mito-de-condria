@@ -314,6 +314,12 @@ export function performMeiosis(): boolean {
 	gameState.gainSpeeds.glicose += currentGainSpeeds.glicose * (newMultiplier - 1);
 	gameState.gainSpeeds.atp += currentGainSpeeds.atp * (newMultiplier - 1);
 
+	// Trigger meiosis discovery on first activation
+	if (!gameState.flags.hasPerformedMeiosis) {
+		discover('meiosis');
+		gameState.flags.hasPerformedMeiosis = true;
+	}
+
 	return true;
 }
 
