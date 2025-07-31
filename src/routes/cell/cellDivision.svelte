@@ -2,6 +2,7 @@
 	import {
 		canProgressMitosis,
 		gameState,
+		getScaledMitosisCost,
 		mitosisDuration,
 		mitosisStages,
 		performMeiosis,
@@ -104,7 +105,22 @@
 						<p class="mb-3 text-sm text-gray-600">{currentStage.description}</p>
 						{#if currentStageIndex > 0}
 							<div class="mb-3 text-sm">
-								<span class="font-medium">Custo: {formatCost(currentStage.resourceCost)}</span>
+								<span class="font-medium">Custo Base: {formatCost(currentStage.resourceCost)}</span>
+								{#if gameState.resources.cells > 0}
+									<div class="text-xs text-orange-600">
+										Custo Real: {formatCost(
+											Object.fromEntries(
+												Object.entries(currentStage.resourceCost).map(([resource, amount]) => [
+													resource,
+													getScaledMitosisCost(amount as number)
+												])
+											)
+										)} (+{gameState.resources.cells * 10}% por {gameState.resources.cells} célula{gameState
+											.resources.cells > 1
+											? 's'
+											: ''})
+									</div>
+								{/if}
 							</div>
 						{/if}
 					</div>
@@ -133,6 +149,16 @@
 				Divida sua célula para criar uma nova célula idêntica. Ganhe células como um novo recurso!
 			</p>
 
+			<!-- Mitosis Requirements Warning -->
+			{#if !gameState.purchasedUpgrades.centriole}
+				<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
+					<div class="text-sm text-red-800">
+						⚠️ <strong>Requisito não atendido:</strong> Você precisa comprar o
+						<strong>Centríolo</strong> para desbloquear a mitose.
+					</div>
+				</div>
+			{/if}
+
 			<!-- Mitosis Stages Overview -->
 			<div class="mb-4 rounded-lg bg-green-50 p-4">
 				<h4 class="mb-2 font-semibold text-green-800">Estágios da Mitose:</h4>
@@ -147,14 +173,20 @@
 					</div>
 				</div>
 				<div class="mt-2 text-xs text-green-600">Recompensa: +1 Célula</div>
+				{#if gameState.resources.cells > 0}
+					<div class="mt-2 text-xs text-orange-600">
+						⚠️ Custo aumenta +10% por célula já possuída (atual: +{gameState.resources.cells * 10}%)
+					</div>
+				{/if}
 			</div>
 
 			<!-- Mitosis Start Button -->
 			<button
 				class="rounded-lg bg-green-500 px-6 py-3 font-medium text-white transition-colors hover:bg-green-600 active:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+				disabled={!gameState.purchasedUpgrades.centriole}
 				onclick={handleMitosis}
 			>
-				Iniciar Mitose
+				{gameState.purchasedUpgrades.centriole ? 'Iniciar Mitose' : 'Falta Ingredientes'}
 			</button>
 		</div>
 	</div>

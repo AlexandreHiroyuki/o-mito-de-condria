@@ -3,6 +3,7 @@ import { discoveries } from './game.discoveries.svelte.js';
 import { upgrades } from './game.upgrades.svelte.js';
 import { toaster } from './toaster.svelte.js';
 
+export const mitosisCellCostTax = 0.1;
 export const mitosisDuration = 5 * 60; // unit: seconds
 
 export const mitosisStages: MitosisStage[] = [
@@ -297,7 +298,18 @@ export function performMeiosis(): boolean {
 	return true;
 }
 
+export function getScaledMitosisCost(baseCost: number): number {
+	// Increase cost by 10% for each cell the player already has
+	const cellMultiplier = Math.pow(1 + mitosisCellCostTax, gameState.resources.cells);
+	return Math.ceil(baseCost * cellMultiplier);
+}
+
 export function canProgressMitosis(): boolean {
+	// Check if centriole upgrade is purchased (required for mitosis)
+	if (!gameState.purchasedUpgrades.centriole) {
+		return false;
+	}
+
 	const currentStageIndex = gameState.mitosisProgress.currentStage;
 	const currentStage = mitosisStages[currentStageIndex];
 
@@ -307,7 +319,8 @@ export function canProgressMitosis(): boolean {
 
 	if (currentStageIndex > 0) {
 		for (const [resource, amount] of Object.entries(currentStage.resourceCost)) {
-			if (gameState.resources[resource as keyof GameResources] < amount) {
+			const scaledAmount = getScaledMitosisCost(amount as number);
+			if (gameState.resources[resource as keyof GameResources] < scaledAmount) {
 				return false;
 			}
 		}
@@ -325,7 +338,8 @@ export function transitionMitosisStage(): boolean {
 	}
 
 	for (const [resource, amount] of Object.entries(currentStage.resourceCost)) {
-		gameState.resources[resource as keyof GameResources] -= amount as number;
+		const scaledAmount = getScaledMitosisCost(amount as number);
+		gameState.resources[resource as keyof GameResources] -= scaledAmount;
 	}
 
 	const nextStageIndex = currentStageIndex + 1;

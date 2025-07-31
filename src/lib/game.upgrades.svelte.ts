@@ -167,6 +167,18 @@ export const upgrades: Record<string, Upgrade> = {
 			return unmet;
 		}
 	},
+	centriole: {
+		id: 'centriole',
+		name: 'Centríolo',
+		description: 'Organela responsável pela formação do fuso mitótico durante a divisão celular.',
+		effectDescription: 'Desbloqueia a mitose, Proteínas +1/s',
+		cost: { atp: 15, proteinas: 8 },
+		tier: 0,
+		effect: (gameState: GameState) => {
+			gameState.gainSpeeds.proteinas += 1;
+			discover('centriole');
+		}
+	},
 	proteinExport: {
 		id: 'proteinExport',
 		name: 'Exportação de Proteínas',

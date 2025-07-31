@@ -55,5 +55,13 @@ export const discoveries: Record<string, Discovery> = {
 		description:
 			'A produção de energia na célula ocorre principalmente através da respiração celular nas mitocôndrias.',
 		image: '/mithocondria.png'
+	},
+	centriole: {
+		id: 'centriole',
+		name: 'O Centríolo',
+		message: 'Você descobriu o centríolo! A organela responsável pela divisão celular.',
+		description:
+			'O centríolo é uma organela que forma o fuso mitótico durante a divisão celular, garantindo que os cromossomos sejam distribuídos corretamente.',
+		image: '/cell_shell.png'
 	}
 };
