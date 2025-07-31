@@ -38,7 +38,7 @@ export const discoveries: Record<string, Discovery> = {
 		message: 'Você testemunhou a divisão celular! Uma célula se torna duas.',
 		description:
 			'A divisão celular é o processo pelo qual uma célula se divide em duas células filhas idênticas.',
-		image: '/cell_shell.png'
+		image: '/cell_shell_cytokinesis.png'
 	},
 	proteinSynthesis: {
 		id: 'proteinSynthesis',
@@ -62,6 +62,63 @@ export const discoveries: Record<string, Discovery> = {
 		message: 'Você descobriu o centríolo! A organela responsável pela divisão celular.',
 		description:
 			'O centríolo é uma organela que forma o fuso mitótico durante a divisão celular, garantindo que os cromossomos sejam distribuídos corretamente.',
+		image: '/dividing_cells.png'
+	},
+	cilia: {
+		id: 'cilia',
+		name: 'Cílios e Flagelos',
+		message: 'Você descobriu os cílios e flagelos! Estruturas de movimento e captação celular.',
+		description:
+			'Os cílios e flagelos são estruturas microscópicas formadas por microtúbulos que permitem o movimento celular e a captação de partículas do ambiente.',
+		image: '/cell_shell.png'
+	},
+	lysosome: {
+		id: 'lysosome',
+		name: 'O Lisossomo',
+		message: 'Você descobriu o lisossomo! A organela responsável pela digestão intracelular.',
+		description:
+			'O lisossomo é uma organela que contém enzimas digestivas capazes de quebrar macromoléculas em nutrientes utilizáveis pela célula.',
+		image: '/cell_shell.png'
+	},
+	peroxisome: {
+		id: 'peroxisome',
+		name: 'O Peroxissomo',
+		message: 'Você descobriu o peroxissomo! A organela que decompõe ácidos graxos e aminoácidos.',
+		description:
+			'O peroxissomo é uma organela que decompõe ácidos graxos e aminoácidos, produzindo peróxido de hidrogênio que é convertido em oxigênio.',
+		image: '/cell_shell.png'
+	},
+	glycolysis: {
+		id: 'glycolysis',
+		name: 'A Glicólise',
+		message: 'Você descobriu a glicólise! O processo que quebra a glicose em piruvato.',
+		description:
+			'A glicólise é um processo anaeróbico que quebra a glicose em piruvato, produzindo ATP e liberando energia para a célula.',
+		image: '/cell_shell.png'
+	},
+	fermentation: {
+		id: 'fermentation',
+		name: 'A Fermentação',
+		message: 'Você descobriu a fermentação! O processo anaeróbico que regenera NAD+.',
+		description:
+			'A fermentação é um processo anaeróbico que converte piruvato em lactato ou etanol, regenerando NAD+ para continuar a glicólise.',
+		image: '/cell_shell.png'
+	},
+	phagocytosis: {
+		id: 'phagocytosis',
+		name: 'A Fagocitose',
+		message: 'Você descobriu a fagocitose! O processo de englobamento de partículas grandes.',
+		description:
+			'A fagocitose é o processo pelo qual a célula engloba partículas grandes, formando vacúolos que são digeridos pelos lisossomos.',
+		image: '/cell_shell.png'
+	},
+	endocytosis: {
+		id: 'endocytosis',
+		name: 'A Endocitose',
+		message:
+			'Você descobriu a endocitose! O processo de internalização de fluidos e macromoléculas.',
+		description:
+			'A endocitose é o processo de internalização de fluidos e macromoléculas através da invaginação da membrana plasmática.',
 		image: '/cell_shell.png'
 	}
 };
